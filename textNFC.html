@@ -1,0 +1,62 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>NFC 测试页面</title>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            padding: 20px;  
+        }  
+        h1 {  
+            text-align: center;  
+        }  
+        #status {  
+            text-align: center;  
+            margin-top: 20px;  
+        }  
+    </style>  
+</head>  
+<body>  
+
+<h1>NFC 测试页面</h1>  
+<p>正在读取 NFC 标签...</p>  
+<p id="status"></p>  
+
+<script>  
+    async function readNFC() {  
+        if ('NDEFReader' in window) {  
+            try {  
+                const ndef = new NDEFReader();  
+                await ndef.scan();  
+                console.log("NFC 扫描开始成功.");  
+                
+                ndef.onreading = event => {  
+                    const message = event.message;  
+                    console.log("读取到 NFC 信息:");  
+                    for (const record of message.records) {  
+                        console.log(`Record type: ${record.recordType}`);  
+                        document.getElementById('status').innerText = `读取到: ${record.data}`;  
+                    }  
+                };  
+            } catch (error) {  
+                console.error("NFC 扫描时出错: ", error);  
+                document.getElementById('status').innerText = "扫描时出错，请检查控制台。";  
+            }  
+        } else {  
+            alert("该设备不支持 NFC。");  
+        }  
+    }  
+
+    window.onload = function() {  
+        readNFC();  
+    };  
+</script>  
+
+<footer style="text-align: center; margin-top: 20px;">  
+    <p>© 2023 你的名字。保留所有权利。</p>  
+</footer>  
+
+</body>  
+</html>
