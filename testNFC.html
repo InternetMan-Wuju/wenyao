@@ -24,7 +24,7 @@
     <div id="status"></div>  
 
     <script>  
-        async function readNFC() {  
+        async function readNFC() {   
             if ('NDEFReader' in window) {  
                 const ndef = new NDEFReader();  
                 try {  
@@ -38,8 +38,17 @@
                         let content = ""; // 用于存放读取的内容  
                         for (const record of message.records) {  
                             console.log(`Record type: ${record.recordType}`);  
-                            content += `<p>Record type: ${record.recordType}</p>`;  
-                            content += `<p>Data: ${record.data}</p>`;  
+
+                            if (record.recordType === "text") {  
+                                // 解析文本记录  
+                                const decoder = new TextDecoder(record.encoding);  
+                                const textData = decoder.decode(record.data);  
+                                content += `<p>Record type: ${record.recordType}</p>`;  
+                                content += `<p>Data: ${textData}</p>`;  
+                            } else {  
+                                content += `<p>Record type: ${record.recordType}</p>`;  
+                                content += `<p>Data: ${record.data}</p>`;  
+                            }  
                         }  
                         document.getElementById('nfcData').innerHTML = content; // 将内容写入网页元素  
                     };  
@@ -52,7 +61,7 @@
             }  
         }  
 
-        document.getElementById('startScan').onclick = readNFC;  
+        document.getElementById('startScan').onclick = readNFC; 
     </script>  
 </body>  
 </html>
