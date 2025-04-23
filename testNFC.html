@@ -27,6 +27,7 @@
 <script>  
     async function readNFC() {  
         if ('NDEFReader' in window) {  
+            alert("进入NDEFReader逻辑");  
             try {  
                 const ndef = new NDEFReader();  
                 await ndef.scan();  
