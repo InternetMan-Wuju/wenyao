@@ -1,85 +1,58 @@
 <!DOCTYPE html>  
-<html lang="en">  
+<html lang="zh-CN">  
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>NFC 测试页面</title>  
+    <title>NFC 测试</title>  
     <style>  
         body {  
             font-family: Arial, sans-serif;  
+            margin: 20px;  
             padding: 20px;  
-        }  
-        h1 {  
-            text-align: center;  
+            border: 1px solid #ccc;  
         }  
         #status {  
-            text-align: center;  
-            margin-top: 20px;  
+            margin-top: 10px;  
+            font-weight: bold;  
         }  
     </style>  
 </head>  
 <body>  
+    <h1>NFC 读取测试</h1>  
+    <button id="startScan">开始扫描 NFC</button>  
+    <div id="nfcData"></div>  
+    <div id="status"></div>  
 
-<h1>NFC 测试页面</h1>  
-<p>正在读取 NFC 标签...</p>  
-<p id="status"></p>  
+    <script>  
+        async function readNFC() {  
+            if ('NDEFReader' in window) {  
+                const ndef = new NDEFReader();  
+                try {  
+                    await ndef.scan();  
+                    console.log("NFC 扫描开始成功.");  
+                    document.getElementById('status').innerText = "请将您的设备靠近NFC标签。";  
 
-<script>  
-async function readNFC() {  
-    if ('NDEFReader' in window) {  
-        console.log("进入NDEFReader逻辑");  
-
-        try {  
-            const permissionStatus = await navigator.permissions.query({ name: 'nfc' });  
-            if (permissionStatus.state === 'granted') {  
-                // 权限已授予，可以继续进行NFC扫描  
-                console.log("NFC权限已授予。");  
-                await scanNFC(); // 调用扫描函数  
-            } else if (permissionStatus.state === 'prompt') {  
-                // 权限请求被提示，后续会在调用scan时弹出提示  
-                console.log("NFC权限请求被提示。");  
-                await scanNFC(); // 调用扫描函数  
+                    ndef.onreading = event => {  
+                        const message = event.message;  
+                        console.log("读取到 NFC 信息:");  
+                        let content = ""; // 用于存放读取的内容  
+                        for (const record of message.records) {  
+                            console.log(`Record type: ${record.recordType}`);  
+                            content += `<p>Record type: ${record.recordType}</p>`;  
+                            content += `<p>Data: ${record.data}</p>`;  
+                        }  
+                        document.getElementById('nfcData').innerHTML = content; // 将内容写入网页元素  
+                    };  
+                } catch (error) {  
+                    console.error("NFC 扫描时出错: ", error);  
+                    document.getElementById('status').innerText = "扫描时出错，请检查控制台。";  
+                }  
             } else {  
-                // 权限被拒绝  
-                console.error("NFC权限被拒绝。");  
-                document.getElementById('status').innerText = "NFC权限被拒绝，请允许访问。";  
+                alert("该设备不支持 NFC。");  
             }  
-        } catch (error) {  
-            console.error("请求NFC权限时出错: ", error);  
-            document.getElementById('status').innerText = "请求NFC权限时出错，请检查控制台。";  
         }  
-    } else {  
-        alert("该设备不支持 NFC。");  
-    }  
-}  
 
-async function scanNFC() {  
-    try {  
-        const ndef = new NDEFReader();  
-        await ndef.scan();  
-        console.log("NFC 扫描开始成功.");  
-        
-        ndef.onreading = event => {  
-            const message = event.message;  
-            console.log("读取到 NFC 信息:");  
-            for (const record of message.records) {  
-                console.log(`Record type: ${record.recordType}`);  
-                document.getElementById('status').innerText = `读取到: ${record.data}`;  
-            }  
-        };  
-    } catch (error) {  
-        console.error("NFC 扫描时出错: ", error);  
-        document.getElementById('status').innerText = "扫描时出错，请检查控制台。";  
-    }  
-}  
-
-
-
-</script>  
-
-<footer style="text-align: center; margin-top: 20px;">  
-    <p>© 2023 你的名字。保留所有权利。</p>  
-</footer>  
-
+        document.getElementById('startScan').onclick = readNFC;  
+    </script>  
 </body>  
 </html>
