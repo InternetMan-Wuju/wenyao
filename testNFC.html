@@ -25,56 +25,56 @@
 <p id="status"></p>  
 
 <script>  
-    async function readNFC() {  
+async function readNFC() {  
     if ('NDEFReader' in window) {  
-        alert("进入NDEFReader逻辑");  
+        console.log("进入NDEFReader逻辑");  
 
-        // 请求NFC权限  
         try {  
             const permissionStatus = await navigator.permissions.query({ name: 'nfc' });  
             if (permissionStatus.state === 'granted') {  
-                // 权限已被授予，可以继续进行NFC扫描  
+                // 权限已授予，可以继续进行NFC扫描  
                 console.log("NFC权限已授予。");  
+                await scanNFC(); // 调用扫描函数  
             } else if (permissionStatus.state === 'prompt') {  
                 // 权限请求被提示，后续会在调用scan时弹出提示  
                 console.log("NFC权限请求被提示。");  
+                await scanNFC(); // 调用扫描函数  
             } else {  
                 // 权限被拒绝  
                 console.error("NFC权限被拒绝。");  
                 document.getElementById('status').innerText = "NFC权限被拒绝，请允许访问。";  
-                return;  
             }  
         } catch (error) {  
             console.error("请求NFC权限时出错: ", error);  
             document.getElementById('status').innerText = "请求NFC权限时出错，请检查控制台。";  
-            return;  
-        }  
-        
-        try {  
-            const ndef = new NDEFReader();  
-            await ndef.scan();  
-            console.log("NFC 扫描开始成功.");  
-            
-            ndef.onreading = event => {  
-                const message = event.message;  
-                console.log("读取到 NFC 信息:");  
-                for (const record of message.records) {  
-                    console.log(`Record type: ${record.recordType}`);  
-                    document.getElementById('status').innerText = `读取到: ${record.data}`;  
-                }  
-            };  
-        } catch (error) {  
-            console.error("NFC 扫描时出错: ", error);  
-            document.getElementById('status').innerText = "扫描时出错，请检查控制台。";  
         }  
     } else {  
         alert("该设备不支持 NFC。");  
     }  
 }  
 
-window.onload = function() {  
-    readNFC();  
-};  
+async function scanNFC() {  
+    try {  
+        const ndef = new NDEFReader();  
+        await ndef.scan();  
+        console.log("NFC 扫描开始成功.");  
+        
+        ndef.onreading = event => {  
+            const message = event.message;  
+            console.log("读取到 NFC 信息:");  
+            for (const record of message.records) {  
+                console.log(`Record type: ${record.recordType}`);  
+                document.getElementById('status').innerText = `读取到: ${record.data}`;  
+            }  
+        };  
+    } catch (error) {  
+        console.error("NFC 扫描时出错: ", error);  
+        document.getElementById('status').innerText = "扫描时出错，请检查控制台。";  
+    }  
+}  
+
+
+
 </script>  
 
 <footer style="text-align: center; margin-top: 20px;">  
